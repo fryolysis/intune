@@ -1,4 +1,5 @@
 import numpy as np
+from utils import msg_type
 
 interval_weight = {
     1: 0,
@@ -8,6 +9,8 @@ interval_weight = {
     5: 1,
     6: 0
 }
+for i in range(1,6):
+    interval_weight[12-i] = interval_weight[i]
 
 
 def freq_weight(messages):
@@ -17,7 +20,7 @@ def freq_weight(messages):
     counters = np.zeros([12])
     weights = np.zeros([12,12])
     for msg in messages:
-        if msg.type == 'on':
+        if msg_type(msg) == 'on':
             counters[msg.note % 12] += 1
     
     # normalize

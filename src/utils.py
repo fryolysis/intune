@@ -1,19 +1,21 @@
 from sys import argv, stderr
 from mido import MidiFile
-
+from os import path
 
 
 OCTAVE_CENTS = 1200
 
 # cents
 pure_intervals = {
-    '1': 112,   # 16/15
-    '2': 204,   # 9/8
-    '3': 316,   # 6/5
-    '4': 386,   # 5/4
-    '5': 498,   # 4/3
-    '6': 590,   # 45/32
+    1: 112,   # 16/15
+    2: 204,   # 9/8
+    3: 316,   # 6/5
+    4: 386,   # 5/4
+    5: 498,   # 4/3
+    6: 590,   # 45/32
 }
+for i in range(1,6):
+    pure_intervals[12-i] = 1200 - pure_intervals[i]
 
 
 def msg_type(msg):
@@ -40,7 +42,6 @@ def preprocess():
 
     messages = []
     for msg in midifile:
-        mt = msg_type(msg)
-        if mt == 'on' or mt == 'off':
+        if msg.type in ['note_on', 'note_off']:
             messages.append(msg)
     return messages
