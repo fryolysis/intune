@@ -1,4 +1,4 @@
-from sys import argv
+from sys import argv, stderr
 from mido import MidiFile
 
 
@@ -15,14 +15,6 @@ pure_intervals = {
     '6': 590,   # 45/32
 }
 
-interval_weight = {
-    '1': 0,
-    '2': 0,
-    '3': 1,
-    '4': 1,
-    '5': 1,
-    '6': 0
-}
 
 def msg_type(msg):
     if msg.type == 'note_off':
@@ -37,9 +29,17 @@ def preprocess():
     '''
     checks for validity of midi file and discards system messages
     '''
-    # TODO: ensure that it is a single track midi file
+    if len(argv) != 2:
+        print('Please provide an input file in midi format.', file=stderr)
+        exit(1)
+
+    midifile = MidiFile(argv[1])
+    if midifile.type != 1:
+        print('Midi file must contain a single track.', file=stderr)
+        exit(1)
+
     messages = []
-    for msg in MidiFile(argv[1]):
+    for msg in midifile:
         mt = msg_type(msg)
         if mt == 'on' or mt == 'off':
             messages.append(msg)

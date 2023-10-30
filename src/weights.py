@@ -1,5 +1,15 @@
 import numpy as np
 
+interval_weight = {
+    1: 0,
+    2: 0,
+    3: 1,
+    4: 1,
+    5: 1,
+    6: 0
+}
+
+
 def freq_weight(messages):
     '''
     weight of a pair of pitch class is defined to be the multiplication of freq of appeareance of each
@@ -18,3 +28,5 @@ def freq_weight(messages):
             weights[i][j] = counters[i] * counters[j]
 
     return weights
+
+# TODO: define a weighting based on time proximity, and define a weighting based on a mixed strategy

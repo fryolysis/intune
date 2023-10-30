@@ -30,4 +30,6 @@ $$ \frac{\partial L}{\partial x_k} =
 -2 \sum_{j=k+1}^{11} \kappa_{k,j}\kappa_{j-k} (x_j - x_k - \tau_{j-k})
 = 0$$
 
-This is just a linear system of equations with 11 unknowns. Note that if some pitch never appears in the score all interval frequencies associated with it are 0 and this equation is already satisfied regardless of our final solution, which essentially reduces the number of unknowns by 1.
+This is just a linear system of equations with 11 unknowns. Note that if some pitch never appears in the score all interval frequencies associated with it are 0 and this equation is already satisfied regardless of our final solution, which essentially reduces the number of unknowns by one. For such cases, we still output a 12 tone scale for convenience where the unused pitch classes left as they were in 12 tone equal tempered scale.
+
+We use SymPy to solve this problem analytically.
