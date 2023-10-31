@@ -26,18 +26,14 @@ def msg_type(msg):
         return msg.type
 
 
-def preprocess():
+def preprocess(filename):
     '''
     checks for validity of midi file and discards system messages
     '''
-    if len(argv) != 2:
-        print('Please provide an input file in midi format.', file=stderr)
-        exit(1)
-
-    midifile = MidiFile(argv[1])
+    midifile = MidiFile(filename)
+    
     if midifile.type != 1:
-        print('Midi file must contain a single track.', file=stderr)
-        exit(1)
+        raise Exception()
 
     messages = []
     for msg in midifile:

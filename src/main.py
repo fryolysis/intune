@@ -5,18 +5,39 @@
 
 # output scale's first note is assumed to be C for convenience
 
-import utils
-import weights
-import analytic
+import utils, weights, analytic, output
+import tkinter as tk
+from tkinter.filedialog import askopenfilename
 
 
-# MAIN
-messages = utils.preprocess()
-scale = analytic.solve(weights.freq_weight(messages), weights.interval_weight)
-# output .scl file
-with open('myscale.scl', 'w') as f:
-    f.write('First note is C.\n')
-    f.write(f'12\n') # num of lines
-    for cents in scale:
-        f.write(f'{cents:.1f}\n')
-    f.write('2/1')
+def open_file():
+    global midi_messages
+    filename = askopenfilename(title='choose a midi score', initialdir='~')
+    try:
+        midi_messages = utils.preprocess(filename)
+        label_info.config(text='file loaded')
+    except Exception as e:
+        label_info.config(text=e)
+
+def run():
+    try:
+        scale = analytic.solve(weights.freq_weight(midi_messages), weights.interval_weight)
+        output.scale_file('myscale', scale)
+    except Exception as e:
+        label_info.config(text=e)
+
+
+
+root = tk.Tk()
+root.title('InTune')
+root.geometry('250x100')
+root.resizable(False,False)
+
+button_open_file = tk.Button(root, text='choose midi file', command=open_file)
+button_run = tk.Button(root, text='run', command=run)
+label_info = tk.Label()
+
+button_open_file.pack()
+button_run.pack()
+label_info.pack()
+root.mainloop()

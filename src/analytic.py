@@ -1,5 +1,6 @@
 import sympy
 from utils import pure_intervals
+from utils import stderr
 
 def solve(pitch_pair_weights, interval_weights):
     x = list( sympy.symbols('x:12') )
@@ -18,10 +19,9 @@ def solve(pitch_pair_weights, interval_weights):
     
     
     sol = sympy.solve(eqns, x[1:])
-    print(sol)
+    # if no solution, abort
     if not sol:
-        print('No solution!')
-        exit(1)
+        raise Exception('There is no solution!')
 
     # if the system is underdetermined, use 12-tet default values
     for i in range(1,12):
