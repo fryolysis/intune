@@ -7,12 +7,13 @@
 
 import utils, weights, analytic, output
 import tkinter as tk
-from tkinter.filedialog import askopenfilename
+import tkinter.filedialog as fd
 
+button_color = '#7ec4b0'
 
 def open_file():
     global midi_messages
-    filename = askopenfilename(title='choose a midi score', initialdir='~')
+    filename = fd.askopenfilename(title='choose a midi score', initialdir='~')
     try:
         midi_messages = utils.preprocess(filename)
         label_info.config(text='file loaded')
@@ -20,24 +21,44 @@ def open_file():
         label_info.config(text=e)
 
 def run():
+    global scale
     try:
         scale = analytic.solve(weights.freq_weight(midi_messages), weights.interval_weight)
-        output.scale_file('myscale', scale)
+        label_scale.config(text=output.scale_label(scale))
+        label_info.config(text='done')
     except Exception as e:
         label_info.config(text=e)
 
-
+def export_scale():
+    fname = fd.asksaveasfilename(title='save file as', initialdir='~',defaultextension='.scl')
+    try:
+        output.scale_file(fname, scale)
+        label_info.config(text=f'saved as {fname}')
+    except Exception as e:
+        label_info.config(text=e)
 
 root = tk.Tk()
 root.title('InTune')
-root.geometry('250x100')
-root.resizable(False,False)
+root.geometry('300x250')
+root.config(bg='#d6d196')
 
-button_open_file = tk.Button(root, text='choose midi file', command=open_file)
-button_run = tk.Button(root, text='run', command=run)
-label_info = tk.Label()
 
-button_open_file.pack()
-button_run.pack()
-label_info.pack()
+control_frame = tk.Frame(root)
+display_frame = tk.LabelFrame()
+
+button_open_file = tk.Button(control_frame, text='choose midi file', command=open_file, bg=button_color)
+button_run = tk.Button(control_frame, text='run', command=run, bg=button_color)
+button_export_scale = tk.Button(control_frame, text='export scale', command=export_scale, bg=button_color)
+label_info = tk.Label(display_frame, wraplength=100)
+label_scale = tk.Label(display_frame, wraplength=100)
+
+
+control_frame.pack(side='left', anchor='s')
+display_frame.pack(side='right', anchor='s')
+
+label_info.pack(side='bottom', anchor='s')
+label_scale.pack(side='top')
+for wg in control_frame.winfo_children():
+    wg.pack(anchor='w', fill='x')
+
 root.mainloop()
