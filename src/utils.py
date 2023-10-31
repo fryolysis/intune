@@ -3,7 +3,6 @@ from mido import MidiFile
 from os import path
 
 
-OCTAVE_CENTS = 1200
 
 # cents
 pure_intervals = {

@@ -13,7 +13,6 @@ import analytic
 # MAIN
 messages = utils.preprocess()
 scale = analytic.solve(weights.freq_weight(messages), weights.interval_weight)
-
 # output .scl file
 with open('myscale.scl', 'w') as f:
     f.write('First note is C.\n')

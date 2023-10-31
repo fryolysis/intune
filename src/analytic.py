@@ -16,7 +16,8 @@ def solve(pitch_pair_weights, interval_weights):
     for i in range(1,12):
         eqns.append( L.diff(x[i]) )
     
+    # TODO handle the case when solution is not unique, it can happen when score does not contain all 12 pitch classes
     sol = sympy.solve(eqns, x[1:])
-    scale = [round(i) for i in sol.values()]
+    scale = [round(i,1) for i in sol.values()]
     scale.sort()
     return scale
