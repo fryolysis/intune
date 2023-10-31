@@ -17,6 +17,6 @@ scale = analytic.solve(weights.freq_weight(messages), weights.interval_weight)
 with open('myscale.scl', 'w') as f:
     f.write('First note is C.\n')
     f.write(f'12\n') # num of lines
-    for i in scale:
-        f.write(f'{i}\n')
+    for cents in scale:
+        f.write(f'{cents:.1f}\n')
     f.write('2/1')
