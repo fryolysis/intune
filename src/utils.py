@@ -29,12 +29,14 @@ def preprocess(filename):
     checks for validity of midi file and discards system messages
     '''
     midifile = MidiFile(filename)
-    
-    if midifile.type != 1:
-        raise Exception()
 
     messages = []
+    time_bag = 0
     for msg in midifile:
         if msg.type in ['note_on', 'note_off']:
+            msg.time += time_bag
+            time_bag = 0
             messages.append(msg)
+        elif msg.time:
+            time_bag += msg.time
     return messages
