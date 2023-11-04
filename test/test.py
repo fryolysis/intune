@@ -17,15 +17,18 @@ class TestMockScore(unittest.TestCase):
             
 
 class TestWeightMethods(unittest.TestCase):
-    def test_freq_weight(self):
+    # any weighting scheme must assign 0 weight to (x,y) where x or y never appears in the score.
+    def test_missing_pitches(self):
         for _ in range(20):
             sample = set(random.choices(range(12), k=random.randint(1,11)))
             complement = set(range(12)).difference(sample)
             mock_score = midigen.from_pitch_set(sample, 20)
-            w = weights.freq_weight(mock_score)
+            wf = weights.freq_weight(mock_score)
+            ww = weights.window_weight(mock_score)
             for i in complement:
                 for j in complement:
-                    self.assertAlmostEqual(w[i][j], 0)
+                    self.assertAlmostEqual(wf[i][j], 0)
+                    self.assertAlmostEqual(ww[i][j], 0)
 
 if __name__ == '__main__':
     unittest.main()
