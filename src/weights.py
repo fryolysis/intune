@@ -48,10 +48,11 @@ def time_weight(messages):
     pass
 
 def __window_weight_update(weights, window):
-    for i in window:
-        for j in window:
-            row = min(i%12,j%12)
-            col = max(i%12,j%12)
+    n = len(window)
+    for i in range(n):
+        for j in range(i+1,n):
+            row = min(window[i]%12, window[j]%12)
+            col = max(window[i]%12, window[j]%12)
             weights[row][col] = 1
 
 def __window_slide(messages, weights, window_size, offset):

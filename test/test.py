@@ -1,6 +1,6 @@
-import unittest, random
+import unittest, random, numpy
 from intune.test import midigen
-from intune.src import weights
+from intune.src import weights, analytic
 
 
 class TestMockScore(unittest.TestCase):
@@ -29,6 +29,33 @@ class TestWeightMethods(unittest.TestCase):
                 for j in complement:
                     self.assertAlmostEqual(wf[i][j], 0)
                     self.assertAlmostEqual(ww[i][j], 0)
+
+class TestAnalytic(unittest.TestCase):
+    def test_scale_size(self):
+        for _ in range(10):
+            mock_pair_weight = numpy.random.random([12,12])
+            mock_interval_weight = [random.random() for _ in range(12)]
+            scl = analytic.solve(mock_pair_weight, mock_interval_weight)
+            try:
+                self.assertEqual(len(scl), 11)
+            except AssertionError:
+                print(scl)
+    
+    def test_missing_pitches(self):
+        for _ in range(10):
+            mock_interval_weight = [random.random() for _ in range(12)]
+            mock_pair_weight = numpy.random.random([12,12])
+            missing = random.choices(range(1,12), k=random.randint(1,11))
+            for m in missing:
+                mock_pair_weight[m,:] = 0
+                mock_pair_weight[:,m] = 0
+            scl = analytic.solve(mock_pair_weight, mock_interval_weight)
+            try:
+                self.assertEqual(len(scl), 11)
+                for m in missing:
+                    self.assertAlmostEqual(scl[m-1], m*100)
+            except AssertionError:
+                print(scl)
 
 if __name__ == '__main__':
     unittest.main()

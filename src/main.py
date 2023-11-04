@@ -5,7 +5,7 @@
 
 # output scale's first note is assumed to be C for convenience
 
-from intune.src import *
+from intune.src import analytic, output, utils, weights
 import tkinter as tk
 import tkinter.filedialog as fd
 
@@ -18,24 +18,26 @@ def open_file():
         midi_messages = utils.preprocess(filename)
         label_info.config(text='file loaded')
     except Exception as e:
-        label_info.config(text=e)
+        label_info.config(text=f'Error:{e}')
 
 def run():
     global scale
     try:
-        scale = analytic.solve(weights.freq_weight(midi_messages), weights.interval_weight)
+        scale = analytic.solve(weights.window_weight(midi_messages), weights.interval_weight)
+        print(scale)
         label_scale.config(text=output.scale_label(scale))
         label_info.config(text='done')
     except Exception as e:
-        label_info.config(text=e)
+        print(e.with_traceback())
+        label_info.config(text=f'Error:{e}')
 
 def export_scale():
-    fname = fd.asksaveasfilename(title='save file as', initialdir='~',defaultextension='.scl')
+    fname = fd.asksaveasfilename(title='save file as', initialdir='~', defaultextension='.scl')
     try:
         output.scale_file(fname, scale)
         label_info.config(text=f'saved as {fname}')
     except Exception as e:
-        label_info.config(text=e)
+        label_info.config(text=f'Error:{e}')
 
 root = tk.Tk()
 root.title('InTune')
