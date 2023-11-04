@@ -87,5 +87,6 @@ def window_weight(messages, window_size=2):
     weights = np.zeros([12,12])
     __window_slide(messages, weights, window_size, offset=window_size)
     __window_slide(messages, weights, window_size, offset=window_size/2)
-    weights /= np.sum(weights)
+    if np.sum(weights) > 0:
+        weights /= np.sum(weights)
     return weights
