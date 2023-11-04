@@ -5,7 +5,7 @@
 
 # output scale's first note is assumed to be C for convenience
 
-import utils, weights, analytic, output
+from intune.src import *
 import tkinter as tk
 import tkinter.filedialog as fd
 

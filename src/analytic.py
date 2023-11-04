@@ -1,6 +1,5 @@
 import sympy
-from utils import pure_intervals
-from utils import stderr
+from intune.src.utils import pure_intervals
 
 def solve(pitch_pair_weights, interval_weights):
     x = list( sympy.symbols('x:12') )

@@ -1,6 +1,6 @@
 import numpy as np
-from utils import msg_type
 from math import ceil
+from intune.src.utils import msg_type
 
 interval_weight = {
     1: 0,
@@ -32,7 +32,8 @@ def freq_weight(messages):
             weights[i][j] = counters[i] * counters[j]
 
     # normalize
-    weights /= np.sum(weights)
+    if np.sum(weights) > 0:
+        weights /= np.sum(weights)
 
     return weights
 

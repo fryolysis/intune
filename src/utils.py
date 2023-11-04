@@ -1,6 +1,4 @@
-from sys import argv, stderr
 from mido import MidiFile
-from os import path
 
 
 
