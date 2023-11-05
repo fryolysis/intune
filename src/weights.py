@@ -10,6 +10,7 @@ interval_weight = {
     5: 1,
     6: 0
 }
+
 for i in range(1,6):
     interval_weight[12-i] = interval_weight[i]
 
@@ -66,11 +67,11 @@ def __window_slide(messages, weights, window_size, offset):
         if current_time > window_end:
             __window_weight_update(weights, window)
             window = list(currently_playing_set)
-            window_end = ceil((current_time-offset)/window_size)*window_size
+            window_end = ceil((current_time-offset)/window_size)*window_size + offset
         if msg_type(msg) == 'on':
             currently_playing_set.add(msg.note)
             window.append(msg.note)
-        else:
+        elif msg.note in currently_playing_set: # multiple note_on's are ignored, first note_off is processed only
             currently_playing_set.remove(msg.note)
     # the case for last window
     __window_weight_update(weights, window)
@@ -85,7 +86,7 @@ def window_weight(messages, window_size=2):
     '''
 
     weights = np.zeros([12,12])
-    __window_slide(messages, weights, window_size, offset=window_size)
+    __window_slide(messages, weights, window_size, offset=0)
     __window_slide(messages, weights, window_size, offset=window_size/2)
     if np.sum(weights) > 0:
         weights /= np.sum(weights)

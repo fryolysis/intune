@@ -16,6 +16,9 @@ def solve(pitch_pair_weights, interval_weights):
     # solve
     sol = sympy.solve(eqns, x[1:])
     
+    # in case of no solution create an empty dict
+    if not sol:
+        sol = {}
 
     # if the system is underdetermined, use 12-tet default values
     for i in range(1,12):

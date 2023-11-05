@@ -23,8 +23,7 @@ def open_file():
 def run():
     global scale
     try:
-        scale = analytic.solve(weights.window_weight(midi_messages), weights.interval_weight)
-        print(scale)
+        scale = analytic.solve(weights.window_weight(midi_messages, window_size=0.5), weights.interval_weight)
         label_scale.config(text=output.scale_label(scale))
         label_info.config(text='done')
     except Exception as e:
