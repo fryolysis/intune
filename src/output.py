@@ -1,11 +1,4 @@
 
-
-def scale_label(scale):
-    text = ''
-    for cents in scale:
-        text += f'{cents:.1f}\n'
-    return text
-
 def scale_file(fname, scale):
     with open(fname, 'w') as f:
         f.write('First note is C.\n')

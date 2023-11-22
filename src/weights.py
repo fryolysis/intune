@@ -17,6 +17,8 @@ for i in range(1,6):
 
 #   WEIGHTS FOR PITCH CLASS PAIRS
 
+# TODO: implement a mixed strategy that takes into account both time proximity and frequency of occurrence
+
 def freq_weight(messages):
     '''
     Weight of a pair of pitch class is defined to be the relative freq of its number of occurrence.
@@ -38,15 +40,6 @@ def freq_weight(messages):
 
     return weights
 
-
-def time_weight(messages):
-    '''
-    Time Weight
-    ============
-    - Weight of a pair of pitch class is inversely proportional to their least distance in time. 
-    - Completely omits frequency of occurrence.
-    '''
-    pass
 
 def __window_weight_update(weights, window):
     n = len(window)
