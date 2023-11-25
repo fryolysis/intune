@@ -33,8 +33,8 @@ def preprocess(filename):
     1. Sustain pedals are converted into prolonged note duration.
     '''
     messages = MidiFile(filename)
+    messages = __process_sustain_pedal(messages) # may introduce multiple note_ons
     messages = __handle_multiple_note_ons(messages)
-    messages = __process_sustain_pedal(messages)
     messages = __discard_others(messages)
     return messages
 
@@ -74,6 +74,7 @@ def __process_sustain_pedal(messages):
                 pedal_on = True
             elif t == 'sustain_off':
                 res += pending_note_offs
+                pending_note_offs.clear()
                 pedal_on = False
     return res
 

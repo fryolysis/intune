@@ -5,9 +5,9 @@ from intune.src.utils import msg_type
 interval_weight = {
     1: 0,
     2: 0,
-    3: 1,
+    3: 0,
     4: 1,
-    5: 1,
+    5: 3,
     6: 0
 }
 
@@ -18,6 +18,29 @@ for i in range(1,6):
 #   WEIGHTS FOR PITCH CLASS PAIRS
 
 # TODO: implement a mixed strategy that takes into account both time proximity and frequency of occurrence
+
+def mixed_weight(messages, time_param):
+    relevant_past = [] # queue
+    time_bag = 0
+    weights = np.zeros([12,12])
+    for msg in messages:
+        time_bag += msg.time
+        relevant_past.insert(0, msg)
+        while time_bag > time_param:
+            time_bag -= relevant_past.pop().time
+        if msg_type(msg) == 'on':
+            for m in relevant_past:
+                if msg_type(m) == 'off':
+                    weights[m.note%12][msg.note%12] += 1
+    
+    weights += weights.T
+    # normalize
+    if np.sum(weights) > 0:
+        weights /= np.sum(weights)
+
+    return weights
+
+ 
 
 def freq_weight(messages):
     '''
