@@ -1,6 +1,6 @@
 
 def scale_file(fname, scale):
-    with open(fname, 'w') as f:
+    with open(fname+'.scl', 'w') as f:
         f.write('First note is C.\n')
         f.write('12\n') # num of lines
         for cents in scale:

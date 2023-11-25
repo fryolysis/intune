@@ -64,7 +64,7 @@ def __window_slide(messages, weights, window_size, offset):
         if msg_type(msg) == 'on':
             currently_playing_set.add(msg.note)
             window.append(msg.note)
-        elif msg.note in currently_playing_set: # multiple note_on's are ignored, first note_off is processed only
+        else:
             currently_playing_set.remove(msg.note)
     # the case for last window
     __window_weight_update(weights, window)

@@ -1,6 +1,6 @@
 from mido import MidiFile
 
-
+SUS_PEDAL_LIMIT = 64 # >=64 is pedal on
 
 # cents
 pure_intervals = {
@@ -20,23 +20,71 @@ def msg_type(msg):
         return 'off'
     elif msg.type == 'note_on':
         return 'off' if msg.velocity == 0 else 'on'
+    elif msg.type == 'control_change' and msg.control == 64:
+        return 'sustain_off' if msg.value < SUS_PEDAL_LIMIT else 'sustain_on'
     else:
         return msg.type
 
 
 def preprocess(filename):
     '''
-    checks for validity of midi file and discards system messages
+    1. Only the first `note_on` and the last `note_off` messages are considered for a particular note in a particular channel.
+    1. All other messages are discarded, total time of those that have time attribute are added to the next non-discarded message.
+    1. Sustain pedals are converted into prolonged note duration.
     '''
-    midifile = MidiFile(filename)
+    messages = MidiFile(filename)
+    messages = __handle_multiple_note_ons(messages)
+    messages = __process_sustain_pedal(messages)
+    messages = __discard_others(messages)
+    return messages
 
-    messages = []
+
+def __handle_multiple_note_ons(messages):
+    note_ctr = [0]*128
+    res = []
+    for msg in messages:
+        t = msg_type(msg)
+        if (t == 'on' and note_ctr[msg.note] == 0) or \
+            (t == 'off' and note_ctr[msg.note] == 1):
+            res.append(msg)
+        if t == 'on':
+            note_ctr[msg.note] += 1
+        elif t == 'off':
+            note_ctr[msg.note] -= 1
+        else:
+            res.append(msg)
+    return res
+
+def __process_sustain_pedal(messages):
+    pedal_on = False
+    pending_note_offs = []
     time_bag = 0
-    for msg in midifile:
+    res = []
+    for msg in messages:
+        t = msg_type(msg)
+        if t == 'off' and pedal_on:
+            time_bag += msg.time
+            msg.time = 0
+            pending_note_offs.append(msg)  
+        else:
+            msg.time += time_bag
+            time_bag = 0
+            res.append(msg)          
+            if t == 'sustain_on':
+                pedal_on = True
+            elif t == 'sustain_off':
+                res += pending_note_offs
+                pedal_on = False
+    return res
+
+def __discard_others(messages):
+    time_bag = 0
+    res = []
+    for msg in messages:
         if msg.type in ['note_on', 'note_off']:
             msg.time += time_bag
             time_bag = 0
-            messages.append(msg)
+            res.append(msg)
         elif msg.time:
             time_bag += msg.time
-    return messages
+    return res

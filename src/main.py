@@ -15,4 +15,4 @@ assert argv[1][-4:] == '.mid', 'Input file must have .mid extension'
 midi_messages = utils.preprocess(argv[1])
 pair_weights = weights.window_weight(midi_messages, window_size=0.5)
 scale = analytic.solve(pair_weights, weights.interval_weight)
-output.scale_file(argv[1][:-4]+'.scl', scale)
+output.scale_file(argv[1][:-4], scale)
