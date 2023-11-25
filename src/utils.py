@@ -1,4 +1,4 @@
-from mido import MidiFile
+from mido import MidiFile, Message
 
 SUS_PEDAL_LIMIT = 64 # >=64 is pedal on
 
@@ -30,11 +30,11 @@ def preprocess(filename):
     '''
     1. Only the first `note_on` and the last `note_off` messages are considered for a particular note in a particular channel.
     1. All other messages are discarded, total time of those that have time attribute are added to the next non-discarded message.
-    1. Sustain pedals are converted into prolonged note duration.
+    1. Sustain pedals are converted into prolonged note duration. If a note is played more than once while pedal is down, it goes off and on again immediately.
     '''
     messages = MidiFile(filename)
-    messages = __process_sustain_pedal(messages) # may introduce multiple note_ons
     messages = __handle_multiple_note_ons(messages)
+    messages = __process_sustain_pedal(messages)
     messages = __discard_others(messages)
     return messages
 
@@ -69,7 +69,11 @@ def __process_sustain_pedal(messages):
         else:
             msg.time += time_bag
             time_bag = 0
-            res.append(msg)          
+            # if a note is played again while pedal is down, play it
+            if t == 'on' and msg.note in [i.note for i in pending_note_offs]:
+                res.append( Message(type='note_off', time=msg.time) )
+                msg.time = 0
+            res.append(msg)        
             if t == 'sustain_on':
                 pedal_on = True
             elif t == 'sustain_off':
