@@ -71,7 +71,7 @@ def __process_sustain_pedal(messages):
             time_bag = 0
             # if a note is played again while pedal is down, play it
             if t == 'on' and msg.note in [i.note for i in pending_note_offs]:
-                res.append( Message(type='note_off', time=msg.time) )
+                res.append( Message(type='note_off', time=msg.time, note=msg.note) )
                 msg.time = 0
             res.append(msg)        
             if t == 'sustain_on':
