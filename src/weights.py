@@ -16,7 +16,7 @@ for i in range(1,6):
 
 #   WEIGHTS FOR PITCH CLASS PAIRS
 
-def mixed_weight(messages, window_size, alpha):
+def mixed_weight(messages, window_size=0.1, alpha=1):
     '''
     - Pairs which are more than `window_size` apart does not contribute to the calculation.
     - Weighting of a pair is proportional to k^`window_size` where k is the number of occurrence.

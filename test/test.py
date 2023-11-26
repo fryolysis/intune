@@ -1,7 +1,6 @@
 import unittest, random, numpy
 from intune.test import midigen
-from intune.src import weights, analytic
-
+from intune.src import weights, solve
 
 
 class TestMockScore(unittest.TestCase):
@@ -39,12 +38,9 @@ class TestWeightMethods(unittest.TestCase):
             for j in range(i+1,n):
                 self.assertAlmostEqual(w[i][j], 0)
 
-    def test_freq_weight(self):
-        self.__test_missing_pitches(weights.freq_weight)
-    
-    def test_window_weight(self):
-        self.__test_missing_pitches(weights.window_weight)
-        self.__test_simultaneity(weights.window_weight)
+    def test_weighting_scheme(self):
+        self.__test_missing_pitches(weights.mixed_weight)
+        self.__test_simultaneity(weights.mixed_weight)
 
 
 class TestAnalytic(unittest.TestCase):
@@ -52,7 +48,7 @@ class TestAnalytic(unittest.TestCase):
         for _ in range(10):
             mock_pair_weight = numpy.random.random([12,12])
             mock_interval_weight = [random.random() for _ in range(12)]
-            scl = analytic.solve(mock_pair_weight, mock_interval_weight)
+            scl = solve.solve(mock_pair_weight, mock_interval_weight)
             self.assertEqual(len(scl), 11, f'Scale is:\n{scl}')
     
     def test_missing_pitches(self):
@@ -63,7 +59,7 @@ class TestAnalytic(unittest.TestCase):
             for m in missing:
                 mock_pair_weight[m,:] = 0
                 mock_pair_weight[:,m] = 0
-            scl = analytic.solve(mock_pair_weight, mock_interval_weight)
+            scl = solve.solve(mock_pair_weight, mock_interval_weight)
             try:
                 self.assertEqual(len(scl), 11)
                 for m in missing:

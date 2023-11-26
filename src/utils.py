@@ -33,9 +33,13 @@ def preprocess(filename):
     1. Sustain pedals are converted into prolonged note duration. If a note is played more than once while pedal is down, it goes off and on again immediately.
     '''
     messages = MidiFile(filename)
-    messages = __handle_multiple_note_ons(messages)
-    messages = __process_sustain_pedal(messages)
-    messages = __discard_others(messages)
+    stages = [
+        __handle_multiple_note_ons,
+        __process_sustain_pedal,
+        __discard_others
+    ]
+    for s in stages:
+        messages = s(messages)
     return messages
 
 
