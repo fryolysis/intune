@@ -19,15 +19,14 @@ class TestMockScore(unittest.TestCase):
 class TestWeightMethods(unittest.TestCase):
     # any weighting scheme must assign 0 weight to (x,y) where x or y never appears in the score.
     def __test_missing_pitches(self, scheme):
-        for _ in range(20):
-            sample = set(random.choices(range(12), k=random.randint(1,11)))
-            complement = set(range(12)).difference(sample)
-            mock_score = midigen.from_pitch_set(sample, 20)
-            w = scheme(mock_score)
-            for i in complement:
-                for j in complement:
-                    self.assertAlmostEqual(w[i][j], 0)
-                    self.assertAlmostEqual(w[i][j], 0)
+        sample = set(random.choices(range(12), k=random.randint(1,11)))
+        complement = set(range(12)).difference(sample)
+        mock_score = midigen.from_pitch_set(sample, 20)
+        w = scheme(mock_score)
+        for i in complement:
+            for j in complement:
+                self.assertAlmostEqual(w[i][j], 0)
+                self.assertAlmostEqual(w[i][j], 0)
     
 
     def __test_simultaneity(self, scheme):
@@ -39,8 +38,9 @@ class TestWeightMethods(unittest.TestCase):
                 self.assertAlmostEqual(w[i][j], 0)
 
     def test_weighting_scheme(self):
-        self.__test_missing_pitches(weights.mixed_weight)
-        self.__test_simultaneity(weights.mixed_weight)
+        for _ in range(10):
+            self.__test_missing_pitches(weights.mixed_weight)
+            self.__test_simultaneity(weights.mixed_weight)
 
 
 class TestAnalytic(unittest.TestCase):
