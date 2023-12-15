@@ -12,7 +12,7 @@ from sys import argv
 assert len(argv) == 2, 'Please provide an input file in midi format.\n'
 assert argv[1][-4:] == '.mid', 'Input file must have .mid extension'
 
-midi_messages = utils.preprocess(argv[1])
-pair_weights = weights.mixed_weight(midi_messages, window_size=0.1, alpha=1)
+score = utils.preprocess(argv[1])
+pair_weights = weights.mixed_weight(score, window_size=0.1, alpha=1)
 scale = solve.solve(pair_weights, weights.interval_weight)
 output.scale_file(argv[1][:-4], scale)

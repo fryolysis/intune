@@ -2,18 +2,6 @@ import unittest, random, numpy
 from intune.test import midigen
 from intune.src import weights, solve
 
-
-class TestMockScore(unittest.TestCase):
-    def test_from_pitch_set(self):
-        mock_score = midigen.from_pitch_set(range(12), 50)
-        cur_playing = set()
-        for msg in mock_score:
-            if msg.type == 'note_on':
-                cur_playing.add(msg.note)
-            else:
-                self.assertIn(msg.note, cur_playing)
-                cur_playing.remove(msg.note)
-        self.assertSetEqual(cur_playing, set())
             
 
 class TestWeightMethods(unittest.TestCase):

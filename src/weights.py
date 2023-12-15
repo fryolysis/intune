@@ -1,5 +1,5 @@
 import numpy as np
-from intune.src.utils import msg_type
+from collections import deque
 
 interval_weight = {
     1: 0.01,
@@ -14,25 +14,22 @@ for i in range(1,6):
     interval_weight[12-i] = interval_weight[i]
 
 
-#   WEIGHTS FOR PITCH CLASS PAIRS
+# weighting scheme
 
-def mixed_weight(messages, window_size=0.1, alpha=1):
+def mixed_weight(score, window_size=0.1, alpha=1):
     '''
     - Pairs which are more than `window_size` apart does not contribute to the calculation.
     - Weighting of a pair is proportional to k^`window_size` where k is the number of occurrence.
     '''
-    relevant_past = [] # queue
-    time_bag = 0
+    # queue of recent elements, left-end is the most recent
+    q = deque()
     weights = np.zeros([12,12])
-    for msg in messages:
-        time_bag += msg.time
-        relevant_past.insert(0, msg)
-        while time_bag > window_size:
-            time_bag -= relevant_past.pop().time
-        if msg_type(msg) == 'on':
-            for m in relevant_past:
-                if msg_type(m) == 'off':
-                    weights[m.note%12][msg.note%12] += 1
+    for note in score.notes:
+        q.appendleft(note)
+        while note.start - q[-1].end > window_size:
+            q.pop()
+        for pnote in [q[i] for i in range(1, len(q))]:
+            weights[pnote.cls][note.cls] += 1
     
     weights += weights.T
     weights **= alpha

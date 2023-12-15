@@ -1,6 +1,8 @@
-from mido import MidiFile, Message
+from mido import MidiFile
 
 SUS_PEDAL_LIMIT = 64 # >=64 is pedal on
+# from midi standard
+MIDI_NOTE_COUNT = 128
 
 # cents
 pure_intervals = {
@@ -11,6 +13,7 @@ pure_intervals = {
     5: 498,   # 4/3
     6: 590,   # 45/32
 }
+
 for i in range(1,6):
     pure_intervals[12-i] = 1200 - pure_intervals[i]
 
@@ -25,75 +28,67 @@ def msg_type(msg):
     else:
         return msg.type
 
+class Note:
+    def __init__(self, start, semitones):
+        self.start = start
+        self.semitones = semitones
+        self.cls = semitones % 12
+    def halt(self, end):
+        self.end = end
+
+
+class Score:
+    def __init__(self, notelist):
+        self.notes = notelist
+
 
 def preprocess(filename):
     '''
-    1. Only the first `note_on` and the last `note_off` messages are considered for a particular note in a particular channel.
-    1. All other messages are discarded, total time of those that have time attribute are added to the next non-discarded message.
-    1. Sustain pedals are converted into prolonged note duration. If a note is played more than once while pedal is down, it goes off and on again immediately.
+    - Sustain pedals are converted into prolonged note duration. If a note is played more than once while pedal is down, it goes off and on again immediately.
+    - All other messages are ignored. Score object is created.
+    - All channels are united into one and if there are overlapping notes with the same midi note attribute we take their union and consider them as a single note.
     '''
     messages = MidiFile(filename)
-    stages = [
-        __handle_multiple_note_ons,
-        __process_sustain_pedal,
-        __discard_others
-    ]
-    for s in stages:
-        messages = s(messages)
-    return messages
+    clock = 0
+    notes = []
+    note_ctr = [0]*MIDI_NOTE_COUNT
+    pressednotes = [None]*MIDI_NOTE_COUNT
+    sustainednotes = [None]*MIDI_NOTE_COUNT
+    sustain_on = False
 
-
-def __handle_multiple_note_ons(messages):
-    note_ctr = [0]*128
-    res = []
     for msg in messages:
+        clock += msg.time if msg.time else 0
         t = msg_type(msg)
-        if (t == 'on' and note_ctr[msg.note] == 0) or \
-            (t == 'off' and note_ctr[msg.note] == 1):
-            res.append(msg)
+
+        # a note pressed
+        if t == 'on' and note_ctr[msg.note] == 0:
+            # check if the note is sustained before
+            m = sustainednotes[msg.note]
+            m.halt(clock) if m else None
+            n = Note(start=clock, semitones=msg.note)
+            pressednotes[msg.note] = n
+            notes.append(n) # notes are ordered wrt their pressing time
+
+        # a note released
+        elif t == 'off' and note_ctr[msg.note] == 1:
+            n = pressednotes[msg.note]
+            if sustain_on:
+                sustainednotes[msg.note] = n
+            else:
+                n.halt(clock)
         if t == 'on':
             note_ctr[msg.note] += 1
-        elif t == 'off':
+        elif t =='off':
             note_ctr[msg.note] -= 1
-        else:
-            res.append(msg)
-    return res
+        elif t == 'sustain_on':
+            sustain_on = True
+        elif t == 'sustain_off':
+            # halt all sustained notes
+            [n.halt(clock) for n in sustainednotes if n]
+            sustain_on = False
+            
+    # in case the song ends with sustain pedal on, halt all notes
+    if sustain_on:
+        [n.halt(clock) for n in sustainednotes if n]
 
-def __process_sustain_pedal(messages):
-    pedal_on = False
-    pending_note_offs = []
-    time_bag = 0
-    res = []
-    for msg in messages:
-        t = msg_type(msg)
-        if t == 'off' and pedal_on:
-            time_bag += msg.time
-            msg.time = 0
-            pending_note_offs.append(msg)  
-        else:
-            msg.time += time_bag
-            time_bag = 0
-            # if a note is played again while pedal is down, play it
-            if t == 'on' and msg.note in [i.note for i in pending_note_offs]:
-                res.append( Message(type='note_off', time=msg.time, note=msg.note) )
-                msg.time = 0
-            res.append(msg)        
-            if t == 'sustain_on':
-                pedal_on = True
-            elif t == 'sustain_off':
-                res += pending_note_offs
-                pending_note_offs.clear()
-                pedal_on = False
-    return res
-
-def __discard_others(messages):
-    time_bag = 0
-    res = []
-    for msg in messages:
-        if msg.type in ['note_on', 'note_off']:
-            msg.time += time_bag
-            time_bag = 0
-            res.append(msg)
-        elif msg.time:
-            time_bag += msg.time
-    return res
+    return Score(notes)
