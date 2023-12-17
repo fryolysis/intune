@@ -28,13 +28,10 @@ def mixed_weight(score, window_size=0.1, alpha=1):
         q.appendleft(note)
         while note.start - q[-1].end > window_size:
             q.pop()
-        for pnote in [q[i] for i in range(1, len(q))]:
+        for pnote in q:
             weights[pnote.cls][note.cls] += 1
     
     weights += weights.T
     weights **= alpha
-    # normalize
-    if np.sum(weights) > 0:
-        weights /= np.sum(weights)
-        
+
     return weights
