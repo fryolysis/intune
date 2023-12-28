@@ -29,20 +29,3 @@ The algorithm we propose is a slightly modified version of the one we proposed f
 Note that depending on the length of the score and the aging parameter used to define "long time ago", the computational cost may be too high.
 
 This mode has not been implemented yet.
-
-## Does it really work?
-For fixed tuning, it usually does. But when it does, it is usually quite close to the standard temperament, especially when the occurrence frequency is not important. Still, we have some examples that sound pleasant while being significantly deviated from the standard tuning. Below there is an example.
-
-Mozart's Sonata No.8, first movement ([midi file](http://www.piano-midi.de/midis/mozart/mz_311_1.mid)):
-- [Here](https://drive.google.com/file/d/1xskHf3dsV0DISakGPvwJ5pTAF7zLGVsR/view?usp=sharing) in standard 12tet tuning
-- [Here](https://drive.google.com/file/d/1EtOZK-fWTnnvUyfe6NL9ttr5YLN-O2XD/view?usp=sharing) in custom tuning
-
-Pianoteq software with identical settings except tuning is used to sound both of the samples. Here's the diagram of custom tuning drawn by Pianoteq software:
-
-![](https://i.ibb.co/PzGgRKj/mz-311-1.png)
-
-## Limitations and Further Work
-
-We believe that the biggest limitation of this work is that a step interval must be assigned to the same pure interval wherever it occurs. For instance 3 steps (3 semitones if you like) always have a unique meaning independent of the context. We think that this may not be the case and we have good reasons to think so. Looking at the harmonic series, we see that especially small intervals may have several different pure interpretations. 3 steps may mean 6/5 in major/minor triads, 7/6 in diminished triads. 4 steps may mean 5/4 in major/minor triads, 9/7 and 11/9 in an augmented triad and so on.
-
-We think that in many western classical music 5/4 and 3/2 ratios occur almost between every possible pair of notes which leaves no room for a fixed tuning to consider pure intervals of higher primes. Variable tuning scheme may benefit from including the consideration of pure intervals of higher order.
