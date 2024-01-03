@@ -1,21 +1,27 @@
 from mido import MidiFile
+from typedefs import *
+from math import log2
 
 SUS_PEDAL_LIMIT = 64 # >=64 is pedal on
 # from midi standard
 MIDI_NOTE_COUNT = 128
 
+pure_ratios = [
+    1/1,
+    13/12,
+    8/7,
+    6/5,
+    5/4,
+    4/3,
+    7/5,
+    3/2,
+    8/5,
+    5/3,
+    9/5,
+    15/8,
+]
 # cents
-pure_intervals = {
-    1: 112,   # 16/15
-    2: 204,   # 9/8
-    3: 316,   # 6/5
-    4: 386,   # 5/4
-    5: 498,   # 4/3
-    6: 590,   # 45/32
-}
-
-for i in range(1,6):
-    pure_intervals[12-i] = 1200 - pure_intervals[i]
+pure_intervals = [log2(r)*1200 for r in pure_ratios]
 
 
 def msg_type(msg):
@@ -28,19 +34,6 @@ def msg_type(msg):
     else:
         return msg.type
 
-class Note:
-    def __init__(self, start, semitones):
-        self.start = start
-        self.semitones = semitones
-        self.cls = semitones % 12
-    def halt(self, end):
-        self.end = end
-
-
-class Score:
-    def __init__(self, notelist):
-        self.notes = notelist
-
 
 def preprocess(filename):
     '''
@@ -48,16 +41,17 @@ def preprocess(filename):
     - All other messages are ignored. Score object is created.
     - All channels are united into one and if there are overlapping notes with the same midi note attribute we take their union and consider them as a single note.
     '''
-    messages = MidiFile(filename)
-    clock = 0
+    mfile = MidiFile(filename)
+    clock, ticks = 0,0
     notes = []
     note_ctr = [0]*MIDI_NOTE_COUNT
     pressednotes = [None]*MIDI_NOTE_COUNT
     sustainednotes = [None]*MIDI_NOTE_COUNT
     sustain_on = False
 
-    for msg in messages:
+    for msg, msgorig in zip(mfile, mfile.merged_track, strict=True):
         clock += msg.time if msg.time else 0
+        ticks += msgorig.time if msgorig.time else 0
         t = msg_type(msg)
 
         # a note pressed
@@ -65,7 +59,7 @@ def preprocess(filename):
             # check if the note is sustained before
             m = sustainednotes[msg.note]
             m.halt(clock) if m else None
-            n = Note(start=clock, semitones=msg.note)
+            n = Note(start=clock, startticks=ticks, semitones=msg.note)
             pressednotes[msg.note] = n
             notes.append(n) # notes are ordered wrt their pressing time
 
@@ -91,4 +85,4 @@ def preprocess(filename):
     if sustain_on:
         [n.halt(clock) for n in sustainednotes if n]
 
-    return Score(notes)
+    return Score(notes), mfile

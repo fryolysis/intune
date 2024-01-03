@@ -23,9 +23,9 @@ To minimize the loss, we must compute the $x_i$ values that vanish the partial d
 ## Variable Tuning Mode
 
 The algorithm we propose is a slightly modified version of the one we proposed for fixed-tuning mode:
-1. Whenever a pitch class $i$ appears after a long time since its last appearance (or for the first time), introduce a new variable $x_i$ to represent pitch class $i$ from that point on, until a new sufficiently large gap occurs.
+1. Characterize each instance of pitch class $i$ with its neighborhood in the score.
+1. Use a clustering algorithm to separate instances whose neighborhood does not resemble each other. 
 1. Use the algorithm proposed for fixed-tuning mode to compute the solution.
 
-Note that depending on the length of the score and the aging parameter used to define "long time ago", the computational cost may be too high.
 
-This mode has not been implemented yet.
+An initial prototype of this mode has been implemented where instead of clustering an aging approach is employed, which yields solutions either too costful to compute or does not vary much. The clustering approach will be implemented later.

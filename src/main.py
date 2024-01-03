@@ -6,13 +6,32 @@
 # output scale's first note is assumed to be C for convenience
 
 
-from intune.src import solve, output, utils, weights
+from intune.src import solve, output, utils, weights, variable
 from sys import argv
 
-assert len(argv) == 2, 'Please provide an input file in midi format.\n'
-assert argv[1][-4:] == '.mid', 'Input file must have .mid extension'
+prompt = '''
+    usage:
+    intune FILE MODE
 
-score = utils.preprocess(argv[1])
-pair_weights = weights.mixed_weight(score, window_size=0.1, alpha=1)
-scale = solve.solve(pair_weights, weights.interval_weight)
-output.scale_file(argv[1][:-4], scale)
+    MODE:
+        -f: fixed mode
+        -v: variable mode
+'''
+
+assert len(argv) == 3, prompt
+_, fpath, mode = argv
+assert fpath[-4:] == '.mid', 'Input file must have .mid extension'
+
+score, mfile = utils.preprocess(fpath)
+if mode == '-f':
+    pair_weights = weights.mixed_weight(score, window_size=.1)
+    scale = solve.solve(pair_weights, weights.interval_weight)
+    output.scale_file(fpath[:-4], scale)
+elif mode == '-v':
+    variable.tuningpoints(score, forgetbefore=100)
+    pair_weights = variable.mixed_weight_var(score, window_size=.1)
+    variable.solve_var(score, pair_weights, weights.interval_weight)
+    variable.output_midi(mfile, fpath, score)
+    variable.printscale(score.solution)
+else:
+    raise ValueError('invalid mode flag')

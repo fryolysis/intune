@@ -1,17 +1,15 @@
 import numpy as np
 from collections import deque
 
-interval_weight = {
-    1: 0.01,
-    2: 0.01,
-    3: 0.1,
-    4: 1,
-    5: 3,
-    6: 0
-}
-
-for i in range(1,6):
-    interval_weight[12-i] = interval_weight[i]
+interval_weight = np.array([
+    0,0,0,
+    0.1,    # 3 - min third
+    1,      # 4 - maj third
+    1,      # 5 - fourth
+    0,
+    5,      # 7 - fifth
+    0,0,0,0
+], dtype=np.float128)
 
 
 # weighting scheme
