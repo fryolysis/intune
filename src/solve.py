@@ -1,7 +1,8 @@
 import sympy
 from intune.src.utils import pure_intervals
+from intune.src.output import align
 
-def solve(pitch_pair_weights, interval_weights):
+def solve(score, pitch_pair_weights, interval_weights):
     x = list( sympy.symbols(':12') )
     # loss function
     L = sympy.S.Zero
@@ -26,4 +27,4 @@ def solve(pitch_pair_weights, interval_weights):
     except AssertionError():
         print('solution is not unique!')
     
-    return sol
+    score.solution = align(sol)

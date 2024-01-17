@@ -1,5 +1,5 @@
 from mido import MidiFile
-from typedefs import *
+from intune.src.typedefs import *
 from math import log2
 
 SUS_PEDAL_LIMIT = 64 # >=64 is pedal on

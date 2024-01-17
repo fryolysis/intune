@@ -18,20 +18,28 @@ prompt = '''
         -v: variable mode
 '''
 
-assert len(argv) == 3, prompt
-_, fpath, mode = argv
-assert fpath[-4:] == '.mid', 'Input file must have .mid extension'
+def fixedmode(score, winsize=.1):
+    pair_weights = weights.mixed_weight(score, winsize)
+    solve.solve(score, pair_weights, weights.interval_weight)
+    
 
-score, mfile = utils.preprocess(fpath)
-if mode == '-f':
-    pair_weights = weights.mixed_weight(score, window_size=.1)
-    scale = solve.solve(pair_weights, weights.interval_weight)
-    output.scale_file(fpath[:-4], scale)
-elif mode == '-v':
-    variable.tuningpoints(score, forgetbefore=100)
-    pair_weights = variable.mixed_weight_var(score, window_size=.1)
+def varmode(score, winsize=.1, forgetbef=100):
+    variable.tuningpoints(score, forgetbef)
+    pair_weights = variable.mixed_weight_var(score, winsize)
     variable.solve_var(score, pair_weights, weights.interval_weight)
-    variable.output_midi(mfile, fpath, score)
-    variable.printscale(score.solution)
-else:
-    raise ValueError('invalid mode flag')
+
+if __name__ == '__main__':
+    assert len(argv) == 3, prompt
+    _, fpath, mode = argv
+    assert fpath[-4:] == '.mid', 'Input file must have .mid extension'
+
+    score, mfile = utils.preprocess(fpath)
+    if mode == '-f':
+        fixedmode(score)
+        output.scale_file(fpath[:-4], score.solution)
+    elif mode == '-v':
+        varmode(score)
+        variable.output_midi(mfile, fpath, score)
+        variable.printscale(score.solution)
+    else:
+        raise ValueError('invalid mode flag')

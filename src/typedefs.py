@@ -12,10 +12,12 @@ class Note:
 
 
 class Score:
+    '''
+    - `notes`:              a list of Note objects in the order of note_on
+    - `solution`:           a dict that maps variable ids to tuned cent values
+    - `varid_to_note`:      a dict that maps variable ids to the first note objects assigned to them
+    '''
     def __init__(self, notelist):
-        # in the order of note_on
         self.notes = notelist
-        # maps varid to cents
         self.solution = None
-        # maps each varid to the first note instance it is assigned to
         self.varid_to_note = None

@@ -5,8 +5,11 @@ def align(sol):
     - There is always a note that is assigned to 0 cents, which is required for .scl standard. That note is always chosen to be C for convenience.
     '''
     
-    # if C is in the solution pick it, otherwise pick an arbitrary note
-    akey = 0 if 0 in sol else next(iter(sol))
+    # iterates over C, C#, D.. until it finds one that's in the solution
+    for i in range(12):
+        if i in sol:
+            akey = i
+            break
     # shift all notes so that the picked note gets its default 12-tet value                   
     sol = {k : (v-sol[akey]+akey*100)%1200 
             for k,v in sol.items()
@@ -20,8 +23,7 @@ def align(sol):
         )
     return scl
 
-def scale_file(fname, sol):
-    scale = align(sol)
+def scale_file(fname, scale):
     with open(fname+'.scl', 'w') as f:
         f.write('First note is C.\n')
         f.write('12\n') # num of lines

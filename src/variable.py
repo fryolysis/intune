@@ -65,11 +65,20 @@ def output_midi(mfile, fpath, score):
 
 def align_var(score, sol):
     '''
-    - There is always a note that is assigned to 0 cents, which is required for .scl standard. That note is always chosen to be C for convenience.
+    - If C is in `sol` the solution is shifted so that C is assigned to 0 cents.
+    - Else, the solution is shifted so that an arbitrary note is assigned to its default 12-tet value when C is assumed to be 0 cents. (D gets 200 cents or E gets 400 cents etc.)
     '''
+    print('varsol:', sol)
     idtocls = [note.cls for note in score.varid_to_note]
-    # if C is in the solution pick it, otherwise pick an arbitrary note
-    akey = idtocls.index(0) if 0 in idtocls else next(iter(sol))
+    # iterates over C, C#, D.. until it finds one that's in the solution
+    for i in range(12):
+        try:
+            candid = idtocls.index(i)
+            if candid in sol:
+                akey = candid
+                break
+        except ValueError:
+            continue
     # shift all notes so that the picked note gets its default 12-tet value
     sol = {k : (v-sol[akey]+idtocls[akey]*100)%1200 for k,v in sol.items()}
     return sol

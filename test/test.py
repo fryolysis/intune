@@ -1,6 +1,6 @@
 import unittest, random, numpy
 from intune.test import midigen
-from intune.src import weights, solve, output
+from intune.src import weights, solve, output, main
 
 
 class TestWeightMethods(unittest.TestCase):
@@ -36,30 +36,24 @@ class TestWeightMethods(unittest.TestCase):
             self.__test_simultaneity(weights.mixed_weight)
 
 
-class TestAnalytic(unittest.TestCase):
-    
-    def test_scale(self):
+class TestSolutions(unittest.TestCase):
+    def test_compatibility(self):
         for _ in range(10):
-            mock_interval_weight = [random.random() for _ in range(12)]
-            mock_pair_weight = numpy.random.random([12,12])
-            missing = random.choices(range(12), k=random.randint(0,11))
-            for m in missing:
-                mock_pair_weight[m,:] = 0
-                mock_pair_weight[:,m] = 0
-            sol = solve.solve(mock_pair_weight, mock_interval_weight)
-            scl = output.align(sol)
-            # check scale size
-            self.assertEqual(len(scl), 11)
-            # check ordering
-            self.assertEqual(scl, sorted(scl))
-            # check missing pitches
-            for m in missing:
-                # first pitch is implicitly 0 and not included in scl
-                if m==0:
-                    continue
-                self.assertAlmostEqual(scl[m-1], m*100, 
-                    msg=f'scl[{m-1}] = {scl[m-1]} != {m*100}'
-                )
+            pset = set(random.choices(range(12), k=6))
+            score = midigen.from_pitch_set(pset, 800)
+            winsize = random.random()*5
+            main.fixedmode(score, winsize=winsize)
+            fixedsol = score.solution
+            print(fixedsol)
+            main.varmode(score, forgetbef=1e5, winsize=winsize)
+            varsol = score.solution
+            print(varsol)
+            idtocls = [note.cls for note in score.varid_to_note]
+            for k,v in varsol.items():
+                if idtocls[k] > 0:
+                    self.assertAlmostEqual(fixedsol[idtocls[k]-1], v)
+            print('passed')
+
 
 if __name__ == '__main__':
     unittest.main()
