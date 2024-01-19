@@ -2,7 +2,7 @@
 generates mock music scores
 '''
 import random
-from intune.src.utils import *
+from preprocess import *
 
 
 def from_pitch_set(pitch_set, length):

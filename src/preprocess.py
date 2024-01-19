@@ -1,27 +1,6 @@
 from mido import MidiFile
 from intune.src.typedefs import *
-from math import log2
-
-SUS_PEDAL_LIMIT = 64 # >=64 is pedal on
-# from midi standard
-MIDI_NOTE_COUNT = 128
-
-pure_ratios = [
-    1/1,
-    13/12,
-    8/7,
-    6/5,
-    5/4,
-    4/3,
-    7/5,
-    3/2,
-    8/5,
-    5/3,
-    9/5,
-    15/8,
-]
-# cents
-pure_intervals = [log2(r)*1200 for r in pure_ratios]
+from intune.src.params import *
 
 
 def msg_type(msg):
@@ -58,7 +37,8 @@ def preprocess(filename):
         if t == 'on' and note_ctr[msg.note] == 0:
             # check if the note is sustained before
             m = sustainednotes[msg.note]
-            m.halt(clock) if m else None
+            if m:
+                m.end = clock
             n = Note(start=clock, startticks=ticks, semitones=msg.note)
             pressednotes[msg.note] = n
             notes.append(n) # notes are ordered wrt their pressing time
@@ -69,7 +49,7 @@ def preprocess(filename):
             if sustain_on:
                 sustainednotes[msg.note] = n
             else:
-                n.halt(clock)
+                n.end = clock
         if t == 'on':
             note_ctr[msg.note] += 1
         elif t =='off':
@@ -78,11 +58,15 @@ def preprocess(filename):
             sustain_on = True
         elif t == 'sustain_off':
             # halt all sustained notes
-            [n.halt(clock) for n in sustainednotes if n]
+            for n in sustainednotes:
+                if n:
+                    n.end = clock
             sustain_on = False
             
     # in case the song ends with sustain pedal on, halt all notes
     if sustain_on:
-        [n.halt(clock) for n in sustainednotes if n]
+        for n in sustainednotes:
+            if n:
+                n.end = clock
 
     return Score(notes), mfile

@@ -1,45 +1,36 @@
-# MIDI FACTS
-# note range: 0-127 where 0 is C-1 and a step is a semitone
-# pitch bend range -8191 to 8192, mapping to cents is unspecified
-# channel range 0-15, pitch bend is applied to channels not notes
-# ASSUMPTIONS
-# output scale's first note is assumed to be C for convenience
+# always output .scl file with 0 cents corresponding to C
+# if variable tuning flag is set, also output retuned version of input midi file
 
+# TODO: calculate total cost after retuning to evaluate the value of variable tuning
+# TODO: use numpy linear algebra to speed up solution
 
-from intune.src import solve, output, utils, weights, variable
+from intune.src import solve, output, weights, variable, preprocess, params
 from sys import argv
 
 prompt = '''
     usage:
-    intune FILE MODE
+    intune FILE [-r]
 
-    MODE:
-        -f: fixed mode
-        -v: variable mode
+    -r flag is optional and if present, the input file will be tuned to the scale file. Note that in case where scale file contains more than 12 notes, the same midi semitone is tuned to different cent values during the score.
 '''
 
-def fixedmode(score, winsize=.1):
-    pair_weights = weights.mixed_weight(score, winsize)
-    solve.solve(score, pair_weights, weights.interval_weight)
-    
-
-def varmode(score, winsize=.1, forgetbef=100):
-    variable.tuningpoints(score, forgetbef)
-    pair_weights = variable.mixed_weight_var(score, winsize)
-    variable.solve_var(score, pair_weights, weights.interval_weight)
 
 if __name__ == '__main__':
-    assert len(argv) == 3, prompt
-    _, fpath, mode = argv
-    assert fpath[-4:] == '.mid', 'Input file must have .mid extension'
-
-    score, mfile = utils.preprocess(fpath)
-    if mode == '-f':
-        fixedmode(score)
-        output.scale_file(fpath[:-4], score.solution)
-    elif mode == '-v':
-        varmode(score)
-        variable.output_midi(mfile, fpath, score)
-        variable.printscale(score.solution)
+    if len(argv) == 3:
+        _, fpath, mode = argv
+        assert mode == '-r', 'Invalid parameter'
+        mode = 'retune'
+    elif len(argv) == 2:
+        _, fpath = argv
+        mode = 'scale'
     else:
-        raise ValueError('invalid mode flag')
+        raise ValueError(prompt)
+
+    assert fpath[-4:] == '.mid', 'Input file must have .mid extension'
+    score, mfile = preprocess.preprocess(fpath)
+    variable.tuningpoints(score)
+    pair_weights = weights.mixed_weight(score)
+    solve.solve(score, pair_weights)
+    output.output_scl(fpath, score)
+    if mode == 'retune':
+        output.output_midi(mfile, fpath, score)
