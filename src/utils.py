@@ -1,6 +1,21 @@
 from mido import MidiFile
-from intune.src.typedefs import *
-from intune.src.params import *
+from params import *
+
+class Note:
+    '''
+    abs time: time passed since a fixed point back in time (start of the song)
+    - `start`:      abs time of start of note
+    - `startticks`: ticks version of `start`
+    - `end`:        abs time of end of note
+    - `semitones`:  note field of midi standard (0-127)
+    - `solution`:   absolute cent value after calculation
+    '''
+    def __init__(self, start, semitones, startticks):
+        self.start = start
+        self.startticks = startticks
+        self.end = None
+        self.semitones = semitones
+        self.solution = None
 
 
 def msg_type(msg):
@@ -69,4 +84,4 @@ def preprocess(filename):
             if n:
                 n.end = clock
 
-    return Score(notes), mfile
+    return notes, mfile

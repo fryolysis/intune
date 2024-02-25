@@ -1,42 +1,58 @@
-import sympy
-from intune.src.params import *
+from utils import Note, pure_intervals, interval_weight
+from params import WINSIZE
+from scipy.linalg import solve_banded
+import numpy as np
 
-def _align(sol):
+def tau(x: Note, y: Note):
     '''
-    - In the sequence C,C#,D... the first pitch class which appears in the solution is chosen as pivot and all the solution is rotated so that pivot class gets its default value.
-     
-     Default values:
-     C:     0 cents
-     C#:    100 cents
-     D:     200 cents
-     ...
+    returns ideally desired interval between `x` and `y` in cents (positive if `x` has higher pitch than `y`)
     '''
-    
-    # iterates over C, C#, D.. until it finds one that's in the solution
-    akey = 0
-    while akey not in sol.keys():
-        akey += 1
-    # shift all notes so that the picked note gets its default 12-tet value
-    sol = {k : (v-sol[akey]+(akey//K)*100)%1200 for k,v in sol.items()}
-    return sol
+    z = abs(x.semitones - y.semitones)
+    z = pure_intervals[z%12] + z//12 * 1200
+    return -z if x.semitones < y.semitones else z
 
-def solve(score, pitch_pair_weights):
-    varcount = pitch_pair_weights.shape[0]
-    x = list( sympy.symbols(f':{varcount}') )
-    # loss function
-    L = sympy.S.Zero
-    for i in range(varcount):
-        for j in range(i+1, varcount):
-            icls, jcls = i//K, j//K
-            big,smol,clsdiff = (i,j,icls-jcls) if icls > jcls else (j,i,jcls-icls)
-            L += pitch_pair_weights[i][j] * interval_weight[clsdiff] * (x[big]-x[smol]-pure_intervals[clsdiff])**2
-    # partial derivatives
-    eqns = []
-    for i in range(varcount):
-        eqns.append( L.diff(x[i]) )
-    # solve
-    sol = sympy.solve(eqns, x)
-    # get rid of sympy symbols
-    sol = {int(str(k)):v for k,v in sol.items()}
+def kappa(x: Note, y: Note):
+    '''
+    - returns the weight (importance factor) given to pair of notes `x` and `y`
+    - order of parameters is unimportant
+    '''
+    timedif = x.start - y.end if x.start > y.start else y.start - x.end
+    timedif = max(0, timedif)
+    z = abs(x.semitones - y.semitones)
+    return interval_weight[z%12] / (timedif+1)
+
+
+def solve(score: list[Note]):
+    '''
+    prepares ab and b and solves Ax=b using SciPy's solve_banded function
+    '''
+    kappavecs = np.zeros([len(score), 2*WINSIZE+1])
+    tauvecs = np.zeros([len(score), 2*WINSIZE+1])
+    for i in range(len(score)):
+        for j in range(-WINSIZE, WINSIZE+1):
+            if j==0 or i+j < 0 or i+j >= len(score):
+                continue
+            kappavecs[i, j+WINSIZE] = kappa(score[i], score[i+j])
+            tauvecs[i, j+WINSIZE] = tau(score[i], score[i+j])
     
-    score.solution = _align(sol)
+    # vector b
+    b = np.array([np.dot(k,t) for k,t in zip(kappavecs, tauvecs)]) 
+
+    # matrix a
+    a = lambda i,j: - kappavecs[i,j-i+WINSIZE] if i!=j else np.sum(kappavecs[i])
+    # matrix ab
+    ab = np.ndarray([2*WINSIZE+1, len(score)])
+    for i in range(len(score)):
+        for j in range(max(0,i-WINSIZE), min(len(score),i+WINSIZE+1)):
+            ab[WINSIZE+i-j, j] = a(i,j)
+
+
+    sol = solve_banded((WINSIZE, WINSIZE), ab, b, 
+                 overwrite_ab=True, overwrite_b=True, check_finite=False)
+    
+    # shift the solution so that first note gets its default 12tet value
+    default = score[0].semitones * 100
+    sol += default - sol[0]
+    # assign final values to notes
+    for note, val in zip(score, sol):
+        note.solution = val

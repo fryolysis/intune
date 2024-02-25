@@ -22,10 +22,39 @@ To minimize the loss, we must compute the $x_i$ values that vanish the partial d
 
 ## Variable Tuning Mode
 
-The algorithm we propose is a slightly modified version of the one we proposed for fixed-tuning mode:
-1. Characterize each instance of pitch class $i$ with its neighborhood in the score.
-1. Use a clustering algorithm to separate instances whose neighborhood does not resemble each other. 
-1. Use the algorithm proposed for fixed-tuning mode to compute the solution.
+1. Assign a unique variable to each note instance in the score.
+1. Write down the total cost and construct the linear system from partial derivatives of it.
+1. Use SciPy's function for solving $Ax=b$ for band matrix $A$.
 
+Let us put all notes in an ascending order w.r.t their onset time. Let $N$ be the number of notes in the score and let $\nu_i$ be the neighborhood of the $i^{th}$ note. Let $x_i$ be the final absolute cents value of $i^{th}$ note. $\tau_{i,j}$ is the desired interval between $i^{th}$ and $j^{th}$ notes in cents (the ideal value for $x_i-x_j$), and $\kappa_{i,j}$ is the weighting factor for the note pair.
+$$
+L = \sum_{i=1}^N \sum_{j \in \nu_i} \kappa_{i,j} (x_i - x_j - \tau_{i,j})^2
+$$
+Differentiating the loss function we get
+$$
+\frac{\partial L}{\partial x_k} = \sum_{j \in \nu_k} 2 \kappa_{k,j} (x_k - x_j - \tau_{k,j}) + \sum_{\{i \mid k \in \nu_i\}} -2 \kappa_{i,k}(x_i - x_k - \tau_{i,k})
+$$
+We get $N$ equations via setting all partial derivatives to 0.
+$$
+\sum_{j \in \nu_k} \kappa_{k,j} (x_k - x_j - \tau_{k,j}) - \sum_{\{i \mid k \in \nu_i\}} \kappa_{i,k}(x_i - x_k - \tau_{i,k}) = 0
+$$
 
-An initial prototype of this mode has been implemented where instead of clustering an aging approach is employed, which yields solutions either too costful to compute or does not vary much. The clustering approach will be implemented later.
+Since neighborhood is a symmetric relation we have $\nu_k = \{i \mid k \in \nu_i\}$. Informally this means that the neighborhood of a note $x$ and the set of all notes whose neighborhood contains $x$ are the same set. Thus, we have
+$$
+\sum_{i \in \nu_k} \kappa_{k,i} (x_k - x_i - \tau_{k,i}) - \kappa_{i,k} (x_i - x_k - \tau_{i,k}) = 0
+$$
+Note that $\kappa$ is a symmetric function, that is, the order of its arguments is not important. Also note that $\tau_{i,k} = - \tau_{k,i}$ for all $i,k$. Therefore we have
+$$
+\sum_{i \in \nu_k} \kappa_{k,i} (x_k - x_i - \tau_{k,i}) = 0
+$$
+Now we can write our problem in the form of a matrix equation $Ax=b$ where $x=(x_1,x_2,\ldots,x_N)$ is the vector of unknowns.
+$$
+\begin{align}
+    A_{ij} &= \begin{cases}
+        \sum_{k \in \nu_i} \kappa_{i,k} &\text{if } j=i \\
+        - \kappa_{i,j} &\text{if } j \in \nu_i \\
+        0 &\text{else}
+    \end{cases} \\
+    b_{i}  &= \sum_{j \in \nu_i} \kappa_{i,j} \tau_{i,j}
+\end{align}
+$$
