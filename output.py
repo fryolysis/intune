@@ -36,15 +36,18 @@ def _get_payload(note):
     zz = int(rem2//COMMA2)
     return (127, 127, 8, 2, 0, 1, note.semitones, xx, yy, zz)
 
-
+# FIXME: will crash if more than one notes have initial startticks
+# for such files we have to insert dummy messages in front of each other track
 def output_midi(mfile: mido.MidiFile, fpath, score: list[Note]):
     '''
     prepares sysex messages and adds them as a tuning track to the original midi file and then saves the new file
     '''
     # new track
     trk = []
-    oldticks = 0
-    for note in score:
+    oldticks = 1
+
+    # first note doesn't need tuning, cuz it's chosen as reference already
+    for note in score[1:]:
         payload = _get_payload(note)
         delay = note.startticks - oldticks
         msg = mido.Message('sysex', data=payload, time=delay)

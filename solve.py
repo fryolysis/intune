@@ -34,7 +34,6 @@ def solve(score: list[Note]):
         for j in range(-WINSIZE, WINSIZE+1):
             if j==0 or i+j < 0 or i+j >= len(score):
                 continue
-            nbhood = score[max(0,i-WINSIZE):i+WINSIZE]
             kappavecs[i, j+WINSIZE] = kappa(score[i], score[i+j])
             tauvecs[i, j+WINSIZE] = tau(score[i], score[i+j])
     
