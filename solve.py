@@ -21,7 +21,7 @@ def kappa(x: Note, y: Note):
     timedif = x.start - y.end if x.start > y.start else y.start - x.end
     timedif = max(0, timedif)
     z = abs(x.semitones - y.semitones)
-    return interval_weight[z%12] / (timedif**2+1)
+    return interval_weight[z%12] / (timedif+1)
 
 
 def solve(score: list[Note]):

@@ -36,8 +36,8 @@ def _get_payload(note):
     zz = int(rem2//COMMA2)
     return (127, 127, 8, 2, 0, 1, note.semitones, xx, yy, zz)
 
-# TODO: is this timing logic correct??
-def output_midi(mfile, fpath, score: list[Note]):
+
+def output_midi(mfile: mido.MidiFile, fpath, score: list[Note]):
     '''
     prepares sysex messages and adds them as a tuning track to the original midi file and then saves the new file
     '''
@@ -46,8 +46,7 @@ def output_midi(mfile, fpath, score: list[Note]):
     oldticks = 0
     for note in score:
         payload = _get_payload(note)
-        # put 1 tick earlier if possible
-        delay = max(note.startticks - oldticks - 1, 0)
+        delay = note.startticks - oldticks
         msg = mido.Message('sysex', data=payload, time=delay)
         trk.append(msg)
         oldticks = note.startticks
