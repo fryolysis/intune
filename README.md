@@ -30,7 +30,7 @@ $$\begin{align}    A_{ij} &= \begin{cases}        \sum_{k \in \nu_i} \kappa_{i,k
 
 One would typically choose a neighborhood of size 30 (30 notes to the left and 30 notes to the right), so given that the whole score typically consists of thousands of note instances, the matrix $A$ is what is called a band matrix, having non-zero elements only a thin band around its main diagonal. Solving such linear systems seems to be cheaper than arbitrary ones and thus our algorithm is fast enough for our purposes.
 
-### Example
-For the love of sweet major thirds!
+### For the love of sweet major thirds!
+
 ![Beethoven Hammerklavier 1](https://drive.google.com/file/d/1-SSnmT7_e2oBVYVT4hKyxU8RFuNkPfP1/view?usp=sharing)
-![Here](https://drive.google.com/file/d/1yYYVudN4zxqP76v41EsJ4ETeQwDus1ZY/view?usp=sharing) is the tuning diagram
+![beethoven-hammerklavier-1](https://github.com/fryolysis/intune/assets/101171565/94678e20-69bf-404c-9c1f-4621de87a453)
