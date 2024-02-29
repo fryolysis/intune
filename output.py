@@ -2,6 +2,7 @@ import mido
 from params import *
 from utils import Note
 
+COMMA1, COMMA2 = 100/128, 100/16384
 '''
 FORMAT OF MIDI TUNING CHANGE SYS MESSAGE
 -----------------
@@ -26,14 +27,13 @@ zz = LSB of fractional part (1/16384 semitone = 100/16384 cents = .0061 cent uni
 7F 7F 7F is reserved for no change to the existing note tuning
 '''
 
-def _get_payload(note, newcents):
+def _get_payload(note):
     '''
-    tunes the `note` to `newcents`
+    prepares the sysex midi message that tunes `note`
     '''
-    comma1, comma2 = 100/128, 100/16384
-    xx, rem = int(newcents//100), newcents%100
-    yy, rem2 = int(rem//comma1), rem%comma1
-    zz = int(rem2//comma2)
+    xx, rem = int(note.solution//100), note.solution%100
+    yy, rem2 = int(rem//COMMA1), rem%COMMA1
+    zz = int(rem2//COMMA2)
     return (127, 127, 8, 2, 0, 1, note.semitones, xx, yy, zz)
 
 # TODO: is this timing logic correct??
@@ -45,7 +45,7 @@ def output_midi(mfile, fpath, score: list[Note]):
     trk = []
     oldticks = 0
     for note in score:
-        payload = _get_payload(note, note.solution)
+        payload = _get_payload(note)
         # put 1 tick earlier if possible
         delay = max(note.startticks - oldticks - 1, 0)
         msg = mido.Message('sysex', data=payload, time=delay)

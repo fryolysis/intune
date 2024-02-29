@@ -3,6 +3,7 @@ from params import WINSIZE
 from scipy.linalg import solve_banded
 import numpy as np
 
+
 def tau(x: Note, y: Note):
     '''
     returns ideally desired interval between `x` and `y` in cents (positive if `x` has higher pitch than `y`)
@@ -10,6 +11,7 @@ def tau(x: Note, y: Note):
     z = abs(x.semitones - y.semitones)
     z = pure_intervals[z%12] + z//12 * 1200
     return -z if x.semitones < y.semitones else z
+
 
 def kappa(x: Note, y: Note):
     '''
@@ -19,7 +21,7 @@ def kappa(x: Note, y: Note):
     timedif = x.start - y.end if x.start > y.start else y.start - x.end
     timedif = max(0, timedif)
     z = abs(x.semitones - y.semitones)
-    return interval_weight[z%12] / (timedif+1)
+    return interval_weight[z%12] / (timedif**2+1)
 
 
 def solve(score: list[Note]):
@@ -32,6 +34,7 @@ def solve(score: list[Note]):
         for j in range(-WINSIZE, WINSIZE+1):
             if j==0 or i+j < 0 or i+j >= len(score):
                 continue
+            nbhood = score[max(0,i-WINSIZE):i+WINSIZE]
             kappavecs[i, j+WINSIZE] = kappa(score[i], score[i+j])
             tauvecs[i, j+WINSIZE] = tau(score[i], score[i+j])
     

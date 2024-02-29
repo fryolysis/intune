@@ -2,20 +2,20 @@ import numpy as np
 from math import log2
 
 MIDI_NOTE_COUNT = 128       # from midi standard
-SUS_PEDAL_LIMIT = 64        # >=64 is pedal on
+SUS_PEDAL_LIMIT = 64        # pedal on limit
 WINSIZE = 30                # defines neighborhood of a note on one side (# of notes)
 
 interval_weight = np.array([
-    10,    # 0 - unison or octave
+    1e4,     # 0 - unison/octave
     0,
     0,
-    0,       # 3 - min third
-    1,       # 4 - maj third
+    0.1,      # 3 - min third
+    1,      # 4 - maj third
     5,      # 5 - fourth
-    0,
+    0,      # 6 - devil's interval
     5,      # 7 - fifth
-    0,
-    0,
+    0.01,
+    0.01,
     0,0
 ], dtype=np.float64)
 

@@ -18,7 +18,7 @@ $$\frac{\partial L}{\partial x_k} = \sum_{j \in \nu_k} 2 \kappa_{k,j} (x_k - x_j
 We get $N$ equations via setting all partial derivatives to 0.
 $$\sum_{j \in \nu_k} \kappa_{k,j} (x_k - x_j - \tau_{k,j}) - \sum_{\{i \mid k \in \nu_i\}} \kappa_{i,k}(x_i - x_k - \tau_{i,k}) = 0$$
 
-Since neighborhood is a symmetric relation we have $\nu_k = \set{i \mid k \in \nu_i\}$. Informally this means that the neighborhood of a note $x$ and the set of all notes whose neighborhood contains $x$ are the same set. Thus, we have
+Since neighborhood is a symmetric relation we have $\nu_k = \set{i \mid k \in \nu_i}$. Informally this means that the neighborhood of a note $x$ and the set of all notes whose neighborhood contains $x$ are the same set. Thus, we have
 $$\sum_{i \in \nu_k} \kappa_{k,i} (x_k - x_i - \tau_{k,i}) - \kappa_{i,k} (x_i - x_k - \tau_{i,k}) = 0$$
 
 Note that $\kappa$ is a symmetric function, that is, the order of its arguments is not important. Also note that $\tau_{i,k} = - \tau_{k,i}$ for all $i,k$. Therefore we have
