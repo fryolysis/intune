@@ -36,24 +36,30 @@ def _get_payload(note):
     zz = int(rem2//COMMA2)
     return (127, 127, 8, 2, 0, 1, note.semitones, xx, yy, zz)
 
-# FIXME: will crash if more than one notes have initial startticks
-# for such files we have to insert dummy messages in front of each other track
+
 def output_midi(mfile: mido.MidiFile, fpath, score: list[Note]):
     '''
     prepares sysex messages and adds them as a tuning track to the original midi file and then saves the new file
     '''
-    # new track
-    trk = []
+    if mfile.type == 2:
+        raise ValueError('Type-2 midi files are not supported')
+    mfile.type = 1  # to convert type-0 files
+    
+    # insert dummy message in front of all other tracks to shift them forward by 1 tick. This is done to be able to tune first notes in case they start at first tick
+    for t in mfile.tracks:
+        t.insert(0, mido.Message('sysex', time=1))
+
+    # tuning track
+    trk = mfile.add_track('tuning')
+    # tuning message will arrive 1 tick before the tuned note
     oldticks = 1
 
-    # first note doesn't need tuning, cuz it's chosen as reference already
-    for note in score[1:]:
+    for note in score:
+        note.startticks += 1 # update startticks
         payload = _get_payload(note)
         delay = note.startticks - oldticks
         msg = mido.Message('sysex', data=payload, time=delay)
         trk.append(msg)
         oldticks = note.startticks
     
-    mfile.tracks.append(trk)
-    mfile.type = 1  # to convert type-0 files
     mfile.save(fpath[:-4] + '-retuned.mid')
