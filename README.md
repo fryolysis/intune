@@ -31,10 +31,10 @@ $$\begin{align}    A_{ij} &= \begin{cases}        \sum_{k \in \nu_i} \kappa_{i,k
 One would typically choose a neighborhood of size 30 (30 notes to the left and 30 notes to the right), so given that the whole score typically consists of thousands of note instances, the matrix $A$ is what is called a band matrix, having non-zero elements only a thin band around its main diagonal. Solving such linear systems seems to be cheaper than arbitrary ones and thus our algorithm is fast enough for our purposes.
 
 ### For the love of sweet major thirds!
-Many classical pieces do not exhibit much pitch shift, here is the most extreme example I have came across!
 
-![Waldstein 1st movement (in standard 12tet)](https://drive.google.com/file/d/1T-hleJ32DLdzDN61c3aoXWVAL_USOcMF/view?usp=sharing)
+![Liszt's Rhapsody No.10 (in standard 12tet)](https://drive.google.com/file/d/1DXb3ChXdiIP0MGXid09qEEBTSJQTYy5i/view?usp=sharing)
 
-![Waldstein 1st movement (in custom tuning)](https://drive.google.com/file/d/1XTMYm6IsLNQ8jOCCF2ASQQCkRYPbvAtW/view?usp=sharing)
+![Liszt's Rhapsody No.10 (in custom tuning)](https://drive.google.com/file/d/1lqmi_GPGgelzYmnKBCIwE4zGLHDeyvT8/view?usp=sharing)
 
-![waldstein-1](https://github.com/fryolysis/intune/assets/101171565/ca7de3a1-4dcc-48b7-9957-7cb684f80eb6)
+![liz-rhap10](https://github.com/fryolysis/intune/assets/101171565/67a73d11-ee69-43a3-a273-6d76c86add6f)
+
