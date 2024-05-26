@@ -2,14 +2,16 @@ import numpy as np
 from math import log2
 
 MIDI_NOTE_COUNT = 128       # from midi standard
-SUS_PEDAL_LIMIT = 64        # pedal on limit
+SUS_PEDAL_LIMIT = 64        # pedal on limit (0-127)
 WINSIZE = 30                # defines neighborhood of a note on one side (# of notes)
+GHOST = 0.1                 # length of ghost part of a note in time difference calculations
+ZERO_WEIGHT = 1e-6          # exact 0 may cause singular matrix problems
 
 interval_weight = np.array([
-    1e4,     # 0 - unison/octave
+    1e4,    # 0 - unison/octave
     0,
     0,
-    0.1,      # 3 - min third
+    0.01,   # 3 - min third
     1,      # 4 - maj third
     5,      # 5 - fourth
     0,      # 6 - devil's interval

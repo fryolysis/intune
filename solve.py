@@ -1,5 +1,5 @@
 from utils import Note, pure_intervals, interval_weight
-from params import WINSIZE
+from params import *
 from scipy.linalg import solve_banded
 import numpy as np
 
@@ -18,10 +18,11 @@ def kappa(x: Note, y: Note):
     - returns the weight (importance factor) given to pair of notes `x` and `y`
     - order of parameters is unimportant
     '''
-    timedif = x.start - y.end if x.start > y.start else y.start - x.end
-    timedif = max(0, timedif)
+    # k>0 when two notes intersect and k is the time they sound together
+    # k<0 when two notes does not intersect and -k is the time difference
+    k = min(x.end, y.end) - max(x.start, y.start)
     z = abs(x.semitones - y.semitones)
-    return interval_weight[z%12] / (timedif+1)
+    return interval_weight[z%12] * max(k+GHOST, ZERO_WEIGHT)
 
 
 def solve(score: list[Note]):
