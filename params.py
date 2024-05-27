@@ -6,6 +6,7 @@ SUS_PEDAL_LIMIT = 64        # pedal on limit (0-127)
 WINSIZE = 30                # defines neighborhood of a note on one side (# of notes)
 GHOST = 0.1                 # length of ghost part of a note in time difference calculations
 ZERO_WEIGHT = 1e-6          # exact 0 may cause singular matrix problems
+KEY = None                  # it's computed from score
 
 interval_weight = np.array([
     1e4,    # 0 - unison/octave

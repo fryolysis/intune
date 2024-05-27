@@ -18,6 +18,9 @@ def kappa(x: Note, y: Note):
     - returns the weight (importance factor) given to pair of notes `x` and `y`
     - order of parameters is unimportant
     '''
+    # special treatment in case both are key of piece
+    if x.semitones%12 == KEY and y.semitones%12 == KEY:
+        return 1e6
     # k>0 when two notes intersect and k is the time they sound together
     # k<0 when two notes does not intersect and -k is the time difference
     k = min(x.end, y.end) - max(x.start, y.start)
