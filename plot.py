@@ -2,18 +2,22 @@ import matplotlib.pyplot as plt
 from params import WINSIZE
 from utils import Note
 import numpy as np
+from solve import kappa, ZERO_WEIGHT
 
+def trick(x):
+    return (x+50)%1200 - 50
 
 def plot(tunedscore, title):
 
     data = [[] for _ in range(12)]
     time = [[] for _ in range(12)]
     for n in tunedscore:
-        val = (n.solution+50)%1200 - 50
+        val = trick(n.solution)
         data[n.semitones%12].append(val)
         time[n.semitones%12].append(n.start)
 
     # plot
+    _, ax = plt.subplots()
     _, ax = plt.subplots()
     for gr_t,gr in zip(time, data):
         ax.plot(gr_t, gr, '.', markersize=2)
@@ -27,16 +31,18 @@ def error_report(score: list[Note]):
     intervals = [[] for _ in range(12)]
     for i in range(len(score)):
         for j in range(-WINSIZE, WINSIZE+1):
-            if j==0 or i+j < 0 or i+j >= len(score):
+            if j==0 or i+j < 0 or i+j >= len(score) or kappa(score[i], score[i+j]) <= 2*ZERO_WEIGHT:
                 continue
             interval_class = abs(score[i].semitones - score[i+j].semitones)%12
-            cur_interval = abs(score[i].solution - score[i+j].solution)%1200
+            cur_interval = trick( abs(score[i].solution - score[i+j].solution) )
             intervals[interval_class].append(cur_interval)
-    print('Average and std. dev. of sizes of all interval classes:')
-    for i in intervals[1:]:
-        a = np.array(i)
-        print(round(np.mean(a),1), '\t\t', round(np.std(a),1))
+    print('Average and std. dev. of sizes of important interval classes:')
+    for i in intervals:
+        if i:
+            a = np.array(i)
+            print(round(np.mean(a),1), '\t\t', round(np.std(a),1))
 
-    plt.hist(intervals[5], bins=50, label='Fourths', histtype='bar')
-    plt.hist(intervals[4], bins=50, label='Thirds', histtype='bar')
-    plt.hist(intervals[7], bins=50, label='Fifths', histtype='bar')
+    plt.hist(intervals[0], bins=50, label='Unison/Octave')
+    plt.hist(intervals[5], bins=50, label='Fourth')
+    plt.hist(intervals[4], bins=50, label='Third')
+    plt.hist(intervals[7], bins=50, label='Fifth')

@@ -25,7 +25,7 @@ def kappa(x: Note, y: Note):
     # k<0 when two notes does not intersect and -k is the time difference
     k = min(x.end, y.end) - max(x.start, y.start)
     z = abs(x.semitones - y.semitones)
-    return interval_weight[z%12] * max(k+GHOST, ZERO_WEIGHT)
+    return max(interval_weight[z%12] * (k+GHOST), ZERO_WEIGHT)
 
 
 def solve(score: list[Note]):
