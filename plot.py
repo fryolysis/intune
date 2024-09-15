@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+from params import WINSIZE
+from utils import Note
+import numpy as np
 
 
 def plot(tunedscore, title):
@@ -11,10 +14,29 @@ def plot(tunedscore, title):
         time[n.semitones%12].append(n.start)
 
     # plot
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     for gr_t,gr in zip(time, data):
         ax.plot(gr_t, gr, '.', markersize=2)
     
     ax.set(yticks=range(0,1250,100), xlabel='Time(s)', ylabel='Cents', title=title)
     plt.grid(axis='y')
     plt.show()
+
+
+def error_report(score: list[Note]):
+    intervals = [[] for _ in range(12)]
+    for i in range(len(score)):
+        for j in range(-WINSIZE, WINSIZE+1):
+            if j==0 or i+j < 0 or i+j >= len(score):
+                continue
+            interval_class = abs(score[i].semitones - score[i+j].semitones)%12
+            cur_interval = abs(score[i].solution - score[i+j].solution)%1200
+            intervals[interval_class].append(cur_interval)
+    print('Average and std. dev. of sizes of all interval classes:')
+    for i in intervals[1:]:
+        a = np.array(i)
+        print(round(np.mean(a),1), '\t\t', round(np.std(a),1))
+
+    plt.hist(intervals[5], bins=50, label='Fourths', histtype='bar')
+    plt.hist(intervals[4], bins=50, label='Thirds', histtype='bar')
+    plt.hist(intervals[7], bins=50, label='Fifths', histtype='bar')

@@ -1,4 +1,4 @@
-from utils import Note, pure_intervals, interval_weight
+from utils import Note, desired_intervals, interval_weight
 from params import *
 from scipy.linalg import solve_banded
 import numpy as np
@@ -9,7 +9,7 @@ def tau(x: Note, y: Note):
     returns ideally desired interval between `x` and `y` in cents (positive if `x` has higher pitch than `y`)
     '''
     z = abs(x.semitones - y.semitones)
-    z = pure_intervals[z%12] + z//12 * 1200
+    z = desired_intervals[z%12] + z//12 * 1200
     return -z if x.semitones < y.semitones else z
 
 
