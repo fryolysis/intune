@@ -28,13 +28,11 @@ Now we can write our problem in the form of a matrix equation $Ax=b$ where $x=(x
 
 $$\begin{align}    A_{ij} &= \begin{cases}        \sum_{k \in \nu_i} \kappa_{i,k} &\text{if } j=i \newline        - \kappa_{i,j} &\text{if } j \in \nu_i \newline        0 &\text{else}    \end{cases} \newline    b_{i}  &= \sum_{j \in \nu_i} \kappa_{i,j} \tau_{i,j}\end{align}$$
 
-One would typically choose a neighborhood of size 30 (30 notes to the left and 30 notes to the right), so given that the whole score typically consists of thousands of note instances, the matrix $A$ is what is called a band matrix, having non-zero elements only a thin band around its main diagonal. Solving such linear systems seems to be cheaper than arbitrary ones and thus our algorithm is fast enough for our purposes.
+One would typically choose a neighborhood of size less than 100, so given that the whole score typically consists of thousands of note instances, the matrix $A$ is what is called a band matrix, having non-zero elements only a thin band around its main diagonal. Solving such linear systems seems to be cheaper than arbitrary ones and thus our algorithm works pretty fast.
 
-### For the love of sweet major thirds!
+From our experiments, it seems like the key pitch should not be changed throughout a piece. For now, fixing the key pitch is trying to be ensured via keeping the neighborhood size large and assigning very high cost to unison deviation in case when both of notes are key. The key estimation algorithm used is [Krumhansl-Schmuckler algorithm](https://gist.github.com/bmcfee/1f66825cef2eb34c839b42dddbad49fd). In the future, we plan to address this issue in a better way.
 
-![Liszt's Rhapsody No.10 (in standard 12tet)](https://drive.google.com/file/d/1DXb3ChXdiIP0MGXid09qEEBTSJQTYy5i/view?usp=sharing)
+### Some results
 
-![Liszt's Rhapsody No.10 (in custom tuning)](https://drive.google.com/file/d/1lqmi_GPGgelzYmnKBCIwE4zGLHDeyvT8/view?usp=sharing)
-
-![liz-rhap10](https://github.com/fryolysis/intune/assets/101171565/67a73d11-ee69-43a3-a273-6d76c86add6f)
+We felt that certain classical pieces that emphasizes the sweetness of major thirds (like Mozart's Piano Sonata No. 11 in A Major, 1. Theme) sound better with major thirds closer to the pure 5/4 ratio.
 
