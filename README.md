@@ -38,5 +38,7 @@ The main drawback of this approach is the usage of square loss function to model
 
 ### Some results
 
-We felt that certain classical pieces that emphasizes the sweetness of major thirds (like Mozart's Piano Sonata No. 11 in A Major, 1. Theme) sound better with major thirds closer to the pure 5/4 ratio.
+We felt that certain classical pieces that emphasizes the sweetness of major thirds (like Mozart's Piano Sonata No. 11 in A Major, 1. Theme) sound better with major thirds closer to the pure 5/4 ratio. The second plot shows histograms of all simultaneously sounding fifth, fourth and major third intervals.
 
+![pitch-diagram](https://github.com/user-attachments/assets/8e13220c-b17b-483e-b43a-585fa5b15734)
+![interval-histogram](https://github.com/user-attachments/assets/192ae045-079f-404f-984e-b62fce0e397b)
