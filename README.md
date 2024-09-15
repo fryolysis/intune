@@ -32,6 +32,10 @@ One would typically choose a neighborhood of size less than 100, so given that t
 
 From our experiments, it seems like the key pitch should not be changed throughout a piece. For now, fixing the key pitch is trying to be ensured via keeping the neighborhood size large and assigning very high cost to unison deviation in case when both of notes are key. The key estimation algorithm used is [Krumhansl-Schmuckler algorithm](https://gist.github.com/bmcfee/1f66825cef2eb34c839b42dddbad49fd). In the future, we plan to address this issue in a better way.
 
+### Criticism
+
+The main drawback of this approach is the usage of square loss function to model a person's preference. From our experiments we think that this loss function is far from accurate, as it prefers outcomes with a few badly out-of-tune intervals and many perfectly intune intervals instead of all slightly out-of-tune intervals. We think that human perception prefers the latter scenario, so an ideal loss function should have a much higher exponent than two. To avoid high computational cost, we think of implementing the extreme case of hard constraints using simplex algorithm.
+
 ### Some results
 
 We felt that certain classical pieces that emphasizes the sweetness of major thirds (like Mozart's Piano Sonata No. 11 in A Major, 1. Theme) sound better with major thirds closer to the pure 5/4 ratio.
