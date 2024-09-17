@@ -34,7 +34,9 @@ From our experiments, it seems like the key pitch should not be changed througho
 
 ### Criticism
 
-The main drawback of this approach is the usage of square loss function to model a person's preference. From our experiments we think that this loss function is far from accurate, as it prefers outcomes with a few badly out-of-tune intervals and many perfectly intune intervals instead of all slightly out-of-tune intervals. We think that human perception prefers the latter scenario, so an ideal loss function should have a much higher exponent than two. To avoid high computational cost, we think of implementing the extreme case of hard constraints using simplex algorithm.
+The main drawback of this approach is the usage of square loss function to model a person's preference. From our experiments we think that this loss function is far from accurate, as it prefers outcomes with a few badly out-of-tune intervals and many perfectly intune intervals instead of all slightly out-of-tune intervals. We think that human perception prefers the latter scenario, so an ideal loss function should have a much higher exponent than two. To avoid high computational cost, we think of implementing the extreme case of hard constraints using linear programming.
+
+Experiments showed that hard constraints that care only the worst intervals can't do much. For most of the classical pieces, the best major third interval is at best 1-2 cents better than the equal-tempered version even when we allow unisons to vary 2 cents and fifths to vary 5 cents. This suggests that we should use something in between these two approaches, which requires presumably a more expensive optimization algorithm. Gradient descent may be a good choice.
 
 ### Some results
 
