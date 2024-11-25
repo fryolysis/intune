@@ -18,7 +18,6 @@ def plot(tunedscore, title):
 
     # plot
     _, ax = plt.subplots()
-    _, ax = plt.subplots()
     for gr_t,gr in zip(time, data):
         ax.plot(gr_t, gr, '.', markersize=2)
     
@@ -42,7 +41,7 @@ def error_report(score: list[Note]):
             a = np.array(i)
             print(round(np.mean(a),1), '\t\t', round(np.std(a),1))
 
-    plt.hist(intervals[0], bins=50, label='Unison/Octave')
-    plt.hist(intervals[5], bins=50, label='Fourth')
-    plt.hist(intervals[4], bins=50, label='Third')
-    plt.hist(intervals[7], bins=50, label='Fifth')
+    plt.hist(intervals[0], label='Unison/Octave', histtype='step')
+    plt.hist(intervals[5], label='Fourth', histtype='step')
+    plt.hist(intervals[4], label='Third', histtype='step')
+    plt.hist(intervals[7], label='Fifth', histtype='step')
