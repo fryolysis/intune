@@ -4,7 +4,7 @@ The defacto tuning for almost all contemporary western music is 12 tone equal te
 
 We believe that 12 tone equal temperament is not necessarily the best tuning system for every melody if retuning is an easy operation like in electronic music. InTune aims to compute a better tuning tailored to a given musical piece.
 
-We made two main assumptions. First one is: an interval is unimportant to the listener if the notes are sufficiently far apart. Second assumption is: Total cost is computed as weighted average of squared individual costs. Both assumptions are for reducing the computational burden.
+We made two main assumptions. First one is: an interval is unimportant to the listener if the notes are sufficiently far apart in time. Second assumption is: Total cost is computed as weighted average of squared differences between desired vs. realized versions of an interval. Both assumptions are for reducing the computational burden.
 
 Here is the algorithm:
 1. Assign a unique variable to each note instance in the score.
@@ -30,17 +30,17 @@ Now we can write our problem in the form of a matrix equation $Ax=b$ where $x=(x
 
 $$\begin{align}    A_{ij} &= \begin{cases}        \sum_{k \in \nu_i} \kappa_{i,k} &\text{if } j=i \newline        - \kappa_{i,j} &\text{if } j \in \nu_i \newline        0 &\text{else}    \end{cases} \newline    b_{i}  &= \sum_{j \in \nu_i} \kappa_{i,j} \tau_{i,j}\end{align}$$
 
-One would typically choose a neighborhood of size less than 100, so given that the whole score typically consists of thousands of note instances, the matrix $A$ is what is called a band matrix, having non-zero elements only a thin band around its main diagonal. Solving such linear systems seems to be cheaper than arbitrary ones and thus our algorithm works pretty fast.
+One would typically choose a neighborhood of size less than 100, so given that the whole score typically consists of thousands of note instances, the matrix $A$ is what is called a band matrix, having non-zero elements only a thin band around its main diagonal. Solving such linear systems seems to be cheaper than arbitrary ones which makes our algorithm works pretty fast.
 
-From our experiments, it seems like the key pitch should not be changed throughout a piece. For now, fixing the key pitch is trying to be ensured via keeping the neighborhood size large and assigning very high cost to unison deviation in case when both of notes are key. This, however, increases the computational cost dramatically. The key estimation algorithm used is [Krumhansl-Schmuckler algorithm](https://gist.github.com/bmcfee/1f66825cef2eb34c839b42dddbad49fd). In the future, we plan to address this issue in a better way.
+From our experiments, it seems that the key pitch should not be changed throughout a piece. For now, fixing the key pitch is trying to be ensured via keeping the neighborhood size large and assigning very high cost to unison deviation in case when both of notes are key. This, however, increases the computational cost dramatically. The key estimation algorithm used is [Krumhansl-Schmuckler algorithm](https://gist.github.com/bmcfee/1f66825cef2eb34c839b42dddbad49fd). In the future, we plan to address this issue in a better way.
 
 ### Criticism
 
-The main drawback of this approach is the usage of square loss function to model a person's preference. From our experiments we think that this loss function is far from accurate, as it prefers outcomes with a few badly out-of-tune intervals and many perfectly intune intervals instead of all slightly out-of-tune intervals. We think that human perception prefers the latter scenario, so an ideal loss function should have a much higher exponent than two. To avoid high computational cost, we think of implementing the extreme case of hard constraints using linear programming.
+First assumption seems to be roughly correct, except that when both notes are tonic they should better not change or change very slowly over time.
 
-Experiments showed that hard constraints that care only the worst intervals can't do much. For most of the classical pieces, the best major third interval is at best 1-2 cents better than the equal-tempered version even when we allow unisons to vary 2 cents and fifths to vary 5 cents. This suggests that we should use something in between these two approaches, which requires presumably a more expensive optimization algorithm. Gradient descent may be a good choice.
+The second assumption is more problematic. It is the usage of square loss function to model a listener's preference. From our experiments we think that an ideal loss curve should increase faster than quadratic function of the absolute error. An extreme case would be to put sharp inequality constraints, which would boil down to solving a linear programming problem. We tried that approach too but it turned out to be unable to make any significant improvement (of major thirds in particular). Addressing this problem needs a serious rewrite of the program since a more advanced optimization algorithm would be required.
 
-The second assumption is more problematic. It is the usage of square loss function to model a person's preference. From our experiments we think that an ideal loss curve should increase faster than quadratic function of the absolute error. An extreme case would be to put sharp inequality constraints, which would boil down to solving a linear programming problem. We tried that approach too but it turned out to be unable to make any significant improvement (of major thirds in particular).
+### Example Outputs
 
 We felt that certain classical pieces that emphasizes the sweetness of major thirds (like Mozart's Piano Sonata No. 11 in A Major, 1. Theme) sound better with major thirds closer to the pure 5/4 ratio. The second plot shows histograms of all simultaneously sounding fifth, fourth and major third intervals.
 
